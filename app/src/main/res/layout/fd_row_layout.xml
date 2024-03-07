@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:background="@drawable/table_cell_border_wo_padding"
+    android:minWidth="120dp"
+    android:orientation="vertical"
+    android:padding="0dp">
+
+
+    <TextView
+        android:id="@+id/subHeaderTextView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/table_cell_border"
+        android:fontFamily="@font/montserrat"
+        android:gravity="center"
+        android:text=""
+        android:textColor="#000000"
+        android:textSize="12sp" />
+
+    <TextView
+        android:id="@+id/timeOfSandPouringTextView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/table_cell_border"
+        android:fontFamily="@font/montserrat"
+        android:text=" Time of Sand Pouring"
+        android:textColor="#000000"
+        android:textSize="12sp" />
+
+    <TextView
+        android:id="@+id/timeStartedTextView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="0dp"
+        android:background="@drawable/table_cell_border"
+        android:fontFamily="@font/montserrat"
+        android:text="\t\tTime Started"
+        android:textColor="#000000"
+        android:textSize="12sp" />
+
+    <TextView
+        android:id="@+id/timeFinishedTextView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/table_cell_border"
+        android:fontFamily="@font/montserrat"
+        android:text="\t\tTime Finished"
+        android:textColor="#000000"
+        android:textSize="12sp" />
+
+    <TextView
+        android:id="@+id/soilTypesTextView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/table_cell_border"
+        android:fontFamily="@font/montserrat"
+        android:text=" Soil Types/Soil Condition"
+        android:textColor="#000000"
+        android:textSize="12sp" />
+
+    <TextView
+        android:id="@+id/massDrySoilTextView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/table_cell_border"
+        android:fontFamily="@font/montserrat"
+        android:text=" Mass of Dry Soil from Hole"
+        android:textColor="#000000"
+        android:textSize="12sp" />
+
+    <TextView
+        android:id="@+id/initialMassTextView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/table_cell_border"
+        android:fontFamily="@font/montserrat"
+        android:text=" Initial Mass of Sand and Jar"
+        android:textColor="#000000"
+        android:textSize="12sp" />
+
+    <TextView
+        android:id="@+id/finalMassTextView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/table_cell_border"
+        android:fontFamily="@font/montserrat"
+        android:text="Final Mass of Sand and Jar"
+        android:textColor="#000000"
+        android:textSize="12sp" />
+
+    <TextView
+        android:id="@+id/massSandFillHoleTextView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/table_cell_border"
+        android:fontFamily="@font/montserrat"
+        android:text=" Mass of Sand Fill the Hole"
+        android:textColor="#000000"
+        android:textSize="12sp" />
+
+    <TextView
+        android:id="@+id/remarksTextView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/table_cell_border"
+        android:fontFamily="@font/montserrat"
+        android:text=" Remarks"
+        android:textColor="#000000"
+        android:textSize="12sp" />
+
+</LinearLayout>

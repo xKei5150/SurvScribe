@@ -1,102 +1,37 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/text"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MainActivity">
+    tools:context="com.insitu.survscribe.MainActivity">
 
-    <ImageView
-        android:id="@+id/imageView2"
+    <androidx.fragment.app.FragmentContainerView
+        android:id="@+id/myNavHostFragment"
+        android:name="androidx.navigation.fragment.NavHostFragment"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:scaleType="centerCrop"
-        app:layout_constraintDimensionRatio="16:7"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/background" />
-
-    <TextView
-        android:id="@+id/textView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="24dp"
-        android:layout_marginTop="32dp"
-        android:fontFamily="@font/montserrat_bold"
-        android:text="IN-SITU SOIL TESTS"
-        android:textColor="#FFFFFF"
-        android:textSize="@dimen/text_size_title"
-        app:layout_constraintBottom_toTopOf="@+id/linearLayout"
-        app:layout_constraintStart_toStartOf="@+id/imageView2"
-        app:layout_constraintTop_toTopOf="@+id/imageView2"
-        app:layout_constraintVertical_bias="0.851" />
-
-    <LinearLayout
-        android:id="@+id/linearLayout"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:layout_marginTop="-35dp"
-        android:layout_marginBottom="-16dp"
-        android:background="@drawable/main_menu_background"
-
-        android:orientation="vertical"
+        android:layout_marginBottom="-22dp"
+        app:defaultNavHost="true"
         app:layout_constraintBottom_toTopOf="@+id/bottomNavigationView"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/imageView2">
-
-        <include
-            android:id="@+id/spt_menu"
-            layout="@layout/main_menu_layout"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_marginHorizontal="50dp"
-            android:layout_marginTop="75dp"
-            android:layout_marginBottom="25dp"
-            android:layout_weight="1"
-            app:layout_constraintBottom_toTopOf="@+id/view2"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent" />
-
-        <include
-            android:id="@+id/dcp_menu"
-            layout="@layout/main_menu_layout"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_marginHorizontal="50dp"
-            android:layout_marginBottom="25dp"
-            android:layout_weight="1" />
-
-        <include
-            android:id="@+id/fd_menu"
-            layout="@layout/main_menu_layout"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_marginHorizontal="50dp"
-            android:layout_marginBottom="80dp"
-            android:layout_weight="1" />
-
-        <ProgressBar
-            android:id="@+id/loadingSpinner"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"/>
-    </LinearLayout>
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_chainStyle="packed"
+        app:navGraph="@navigation/nav_graph" />
 
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottomNavigationView"
-        style="@style/BottomNavigationView"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:elevation="8dp"
+        app:itemTextAppearanceActive="@style/BottomNavigationViewTextStyle.Active"
+        app:itemTextAppearanceInactive="@style/BottomNavigationViewTextStyle"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/myNavHostFragment"
         app:menu="@menu/bottom_navigation_menu" />
-
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    app:startDestination="@id/test_tab">
+
+    <fragment
+        android:id="@+id/test_tab"
+        android:name="com.insitu.survscribe.test_tab"
+        android:label="TEST"
+        tools:layout="@layout/ren_fragment_test_tab"
+        />
+
+    <fragment
+        android:id="@+id/files_tab"
+        android:name="com.insitu.survscribe.saved_tab"
+        android:label="FILES"
+        tools:layout="@layout/activity_saved_tab"
+        />
+
+    <fragment
+        android:id="@+id/guide_tab"
+        android:name="com.insitu.survscribe.guide_tab"
+        android:label="guide_tab"
+        tools:layout="@layout/guide_tab"/>
+
+    <action android:id="@+id/to_test_fragment"
+        app:destination="@id/test_tab" />
+
+    <action android:id="@+id/to_saved_fragment"
+        app:destination="@id/files_tab" />
+
+    <action android:id="@+id/to_guide_fragment"
+        app:destination="@id/guide_tab" />
+
+</navigation>

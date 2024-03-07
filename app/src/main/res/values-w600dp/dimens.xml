@@ -1,4 +1,9 @@
 <resources>
     <dimen name="text_size_label">16sp</dimen>
     <dimen name="text_size_title">48sp</dimen>
+    <dimen name="cell_row_padding">12sp</dimen>
+    <dimen name="menu_button_padding">20sp</dimen>
+    <dimen name="forward_icon_size">62sp</dimen>
+    <dimen name="toolbar_icon_size">32sp</dimen>
+    <dimen name="remarks_button">9sp</dimen>
 </resources>

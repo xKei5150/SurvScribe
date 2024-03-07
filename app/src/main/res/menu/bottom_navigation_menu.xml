@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
-        android:id="@+id/test_button"
+        android:id="@+id/test_tab"
         android:icon="@drawable/test_icon"
         android:title="TEST"
         />
     <item
-        android:id="@+id/guide_button"
+        android:id="@+id/guide_tab"
         android:icon="@drawable/guide_icon"
         android:title="GUIDE" />
     <item
-        android:id="@+id/files_button"
+        android:id="@+id/files_tab"
         android:icon="@drawable/files_icon"
         android:title="FILES" />
 </menu>

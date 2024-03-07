@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle" >
+    <stroke android:width="1dp" android:color="@android:color/black" />
+    <padding android:left="@dimen/cell_row_padding" android:top="@dimen/cell_row_padding" android:right="@dimen/cell_row_padding" android:bottom="@dimen/cell_row_padding" />
+</shape>

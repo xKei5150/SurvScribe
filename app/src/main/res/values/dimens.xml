@@ -1,5 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <dimen name="text_size_label">12sp</dimen>
-    <dimen name="text_size_title">20sp</dimen>
+    <dimen name="text_size_title">22sp</dimen>
+    <dimen name="cell_row_padding">8sp</dimen>
+    <dimen name="menu_button_padding">8sp</dimen>
+    <dimen name="forward_icon_size">40sp</dimen>
+    <dimen name="toolbar_icon_size">24sp</dimen>
+    <dimen name="remarks_button">5sp</dimen>
 </resources>

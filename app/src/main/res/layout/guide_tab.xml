@@ -1,0 +1,80 @@
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#313B2F">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/constraintLayout3"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="-18dp"
+        android:background="@drawable/guide_files_top_view"
+        android:elevation="2dp"
+        app:layout_constraintBottom_toTopOf="@+id/viewPager"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.0"
+        app:layout_constraintVertical_chainStyle="packed">
+
+        <TextView
+            android:id="@+id/textView4"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="-15dp"
+            android:layout_marginBottom="8dp"
+            android:fontFamily="@font/montserrat_bold"
+            android:text="GUIDE"
+            android:textColor="#000000"
+            android:textSize="34sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="@+id/textView5"
+            app:layout_constraintTop_toBottomOf="@+id/textView5" />
+
+        <TextView
+            android:id="@+id/textView5"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="24dp"
+            android:layout_marginTop="70dp"
+            android:fontFamily="@font/montserrat"
+            android:text="IN-SITU SOIL TESTS"
+            android:textColor="#000000"
+            android:textSize="24sp"
+            app:layout_constraintBottom_toTopOf="@+id/textView4"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+    <androidx.viewpager2.widget.ViewPager2
+        android:id="@+id/viewPager"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginTop="-18dp"
+        android:background="#0313B2FF"
+        app:layout_constraintBottom_toTopOf="@+id/worm_dots_indicator"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/constraintLayout3" />
+
+    <com.tbuonomo.viewpagerdotsindicator.WormDotsIndicator
+        android:id="@+id/worm_dots_indicator"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="32dp"
+        app:dotsColor="@color/white"
+        app:dotsCornerRadius="8dp"
+        app:dotsSize="16dp"
+        app:dotsSpacing="4dp"
+        app:dotsStrokeColor="@color/white"
+        app:dotsStrokeWidth="2dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/viewPager" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
