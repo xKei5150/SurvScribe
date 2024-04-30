@@ -5,6 +5,8 @@ import com.thoughtworks.xstream.annotations.XStreamAlias;
 @XStreamAlias("FD_Data") // Alias for the whole class
 public class FD_Data {
 
+    @XStreamAlias("timeOfSandPouring")
+    private String timeOfSandPouring;
     @XStreamAlias("timeStarted")
     private String timeStarted;
 
@@ -28,7 +30,8 @@ public class FD_Data {
     @XStreamAlias("remarks")
     private String remarks;
 
-    public FD_Data(String timeStarted, String timeFinished, String soilTypes, String massOfDrySoilFromHole, String initialMassOfSandAndJar, String finalMassOfSandAndJar, String massOfSandFillTheHole) {
+    public FD_Data(String timeOfSandPouring, String timeStarted, String timeFinished, String soilTypes, String massOfDrySoilFromHole, String initialMassOfSandAndJar, String finalMassOfSandAndJar, String massOfSandFillTheHole) {
+        this.timeOfSandPouring = timeOfSandPouring;
         this.timeStarted = timeStarted;
         this.timeFinished = timeFinished;
         this.soilTypes = soilTypes;
@@ -36,6 +39,14 @@ public class FD_Data {
         this.initialMassOfSandAndJar = initialMassOfSandAndJar;
         this.finalMassOfSandAndJar = finalMassOfSandAndJar;
         this.massOfSandFillTheHole = massOfSandFillTheHole;
+    }
+
+    public String getTimeOfSandPouring() {
+        return timeOfSandPouring;
+    }
+
+    public void setTimeOfSandPouring(String timeOfSandPouring) {
+        this.timeOfSandPouring = timeOfSandPouring;
     }
 
     public String getTimeStarted() {

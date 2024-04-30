@@ -4,6 +4,8 @@ import java.util.List;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 
 public class SiteInformation {
+    @XStreamAlias("soilImage")
+    private String soilImage;
     @XStreamAlias("testType")
     private String testType;
     @XStreamAlias("companyName")
@@ -27,9 +29,10 @@ public class SiteInformation {
     @XStreamAlias("materialClassification")
     private String materialClassification;
     // Constructor
-    public SiteInformation(String testType, String companyName, String dateConducted, String projectName,
+    public SiteInformation(String soilImage, String testType, String companyName, String dateConducted, String projectName,
                            String time, String ownerLessor, String teamLeader, String location,
                            List<String> teamMembers, String weather, String materialClassification) {
+        this.soilImage = soilImage;
         this.testType = testType;
         this.companyName = companyName;
         this.dateConducted = dateConducted;
@@ -41,6 +44,14 @@ public class SiteInformation {
         this.teamMembers = teamMembers;
         this.weather = weather;
         this.materialClassification = materialClassification;
+    }
+
+    public String getSoilImage() {
+        return soilImage;
+    }
+
+    public void setSoilImage(String soilImage) {
+        this.soilImage = soilImage;
     }
 
     public String getTestType() {

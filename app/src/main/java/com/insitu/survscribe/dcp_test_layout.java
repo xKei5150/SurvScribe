@@ -4,15 +4,20 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.ParcelFileDescriptor;
+import android.provider.MediaStore;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
@@ -23,11 +28,14 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.UUID;
 
 import com.example.survscribe.R;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
@@ -37,6 +45,7 @@ import com.itextpdf.text.Document;
 import com.itextpdf.text.DocumentException;
 import com.itextpdf.text.Element;
 import com.itextpdf.text.Font;
+import com.itextpdf.text.Image;
 import com.itextpdf.text.Paragraph;
 import com.itextpdf.text.Phrase;
 import com.itextpdf.text.Rectangle;
@@ -44,10 +53,13 @@ import com.itextpdf.text.pdf.PdfPCell;
 import com.itextpdf.text.pdf.PdfPTable;
 import com.itextpdf.text.pdf.PdfWriter;
 import com.itextpdf.text.pdf.draw.LineSeparator;
+import com.squareup.picasso.Picasso;
 import com.thoughtworks.xstream.XStream;
 
 public class dcp_test_layout extends AppCompatActivity implements RowDataClickListener {
     private static final int CREATE_PDF_REQUEST_CODE = 2;
+    private ActivityResultLauncher<Intent> galleryLauncher;
+    private View soilImageView;
     RecyclerView testDataTable;
     DCP_Adapter adapter;
     List<DCP_RowData> DCPRowDataList;
@@ -77,6 +89,16 @@ public class dcp_test_layout extends AppCompatActivity implements RowDataClickLi
 
         ConstraintLayout siteInfoLayout = findViewById(R.id.soilTest_siteInfo);
 
+        galleryLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                result -> {
+                    if (result.getResultCode() == RESULT_OK && result.getData() != null) {
+                        Uri selectedImageUri = result.getData().getData();
+                        processSelectedImage(selectedImageUri);
+                        previewImage(soilImageView);
+                    }
+                });
+
         toolbarTitle = findViewById(R.id.toolbarTitle);
         toolbarTitle.setText("Dynamic Cone Penetration Test");
 
@@ -102,7 +124,7 @@ public class dcp_test_layout extends AppCompatActivity implements RowDataClickLi
         teamMember.setOnClickListener(view -> {
             showManageMembersDialog();
         });
-        siteInfo = new SiteInformation(
+        siteInfo = new SiteInformation("",
                 toolbarTitle.getText().toString(),
                 "", "", "", "", "", "", "", teamMembers, "", "");
 
@@ -208,7 +230,7 @@ public class dcp_test_layout extends AppCompatActivity implements RowDataClickLi
     }
 
     private void updateUiFromDcpTest(DCPTest dcpTest) {
-        SiteInformation siteInfo = dcpTest.getSiteInfo();
+        siteInfo = dcpTest.getSiteInfo();
         List<DCP_RowData> DCPRowDataList = dcpTest.getRowDataList();
 
         toolbarTitle.setText(siteInfo.getTestType());
@@ -432,6 +454,7 @@ public class dcp_test_layout extends AppCompatActivity implements RowDataClickLi
     private void saveDataToXml(String filename) {
         try {
             siteInfo = new SiteInformation(
+                    siteInfo.getSoilImage(),
                     toolbarTitle.getText().toString(),
                     companyName.getText().toString(),
                     dateConductedEditText.getText().toString(),
@@ -507,7 +530,15 @@ public class dcp_test_layout extends AppCompatActivity implements RowDataClickLi
             document.add(test);
             document.add(separator);
             document.add(createTestTable(this.DCPRowDataList));
-
+            Paragraph pict = new Paragraph("Picture: ", boldFont);
+            pict.setSpacingAfter(12);
+            if (this.siteInfo.getSoilImage() != null) {
+                document.add(pict);
+                Image image = Image.getInstance(this.siteInfo.getSoilImage());
+                image.scaleToFit(300, 200);
+                image.setAlignment(Element.ALIGN_CENTER);
+                document.add(image);
+            }
             document.close();
             fileOutputStream.close();
 
@@ -610,6 +641,82 @@ public class dcp_test_layout extends AppCompatActivity implements RowDataClickLi
                 savePdfToUri(pdfUri);  // Implement this function
             }
         }
+    }
+
+    public void onSoilImagePressed(View view){
+        showSoilImage();
+    }
+
+    private void showSoilImage() {
+        // Inflate the dialog layout
+        soilImageView = LayoutInflater.from(this).inflate(R.layout.form_soil_image, null);
+        ImageView imageView = soilImageView.findViewById(R.id.imagePreview);
+        Button selectImageButton = soilImageView.findViewById(R.id.selectImageButton);
+
+        previewImage(soilImageView);
+        selectImageButton.setOnClickListener(v -> {
+            Intent galleryIntent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+            galleryLauncher.launch(galleryIntent);
+
+        });
+
+        AlertDialog dialog = new MaterialAlertDialogBuilder(this)
+                .setView(soilImageView)
+                .setTitle("Select Soil Image")
+                .create();
+        dialog.show();
+    }
+
+    private void processSelectedImage(Uri selectedImageUri) {
+        try {
+            File tempImageFile = File.createTempFile("temp_image_", null, getCacheDir());
+            String tempImagePath = tempImageFile.getAbsolutePath();
+
+            // Copy and get the internal storage path
+            String internalImagePath = copyTempImageToInternalStorage(selectedImageUri, tempImagePath);
+
+            siteInfo.setSoilImage(internalImagePath); // Use internal path
+            previewImage(soilImageView);
+            dataChanged = true;
+        } catch (IOException e) {
+            showValidationErrorToast("Error copying or uploading image: " + e);
+        }
+    }
+
+    private String copyTempImageToInternalStorage(Uri imageUri, String tempImagePath) throws IOException {
+        // 1. Get access to internal storage
+        File directory = getFilesDir();
+        // 2. Generate a unique filename
+        String fileName = UUID.randomUUID().toString() + ".jpg"; // Adjust extension as needed
+        File file = new File(directory, fileName);
+
+        // 3. Copy the image from Uri to internal storage (Corrected)
+        InputStream inputStream = getContentResolver().openInputStream(imageUri);
+        OutputStream outputStream = new FileOutputStream(file);
+        byte[] buffer = new byte[1024];
+        int length;
+        while ((length = inputStream.read(buffer)) > 0) {
+            outputStream.write(buffer, 0, length);
+        }
+        inputStream.close();
+        outputStream.close();
+
+        // 4. Delete the temporary file (Check result)
+        boolean deleted = new File(tempImagePath).delete();
+        if (!deleted) {
+            Log.w("ImageHandling", "Failed to delete temp file: " + tempImagePath);
+        }
+
+        // 5. Return the internal storage path
+        return file.getAbsolutePath();
+    }
+
+    private void previewImage(View soilImageView) {
+        ImageView imageView = soilImageView.findViewById(R.id.imagePreview);
+        Picasso.get()
+                .load(new File(siteInfo.getSoilImage()))
+                .placeholder(R.drawable.file_not_found)
+                .into(imageView);
     }
 
 }

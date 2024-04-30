@@ -13,6 +13,7 @@ import android.view.View;
 import android.webkit.MimeTypeMap;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -23,6 +24,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.survscribe.R;
+import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.itextpdf.text.BadElementException;
 import com.itextpdf.text.Chunk;
@@ -61,6 +63,7 @@ public class sp_test_layout extends AppCompatActivity implements RowDataClickLis
     RecyclerView testDataTable;
     SP_Adapter adapter;
     List<SP_Data> SPDataList;
+    private ImageButton soilImage;
     private List<String> teamMembers;
     private EditText dateConductedEditText;
     private EditText timeEditText;
@@ -88,6 +91,9 @@ public class sp_test_layout extends AppCompatActivity implements RowDataClickLis
         teamMembers = new ArrayList<>();
 
         ConstraintLayout siteInfoLayout = findViewById(R.id.soilTest_siteInfo);
+        MaterialToolbar toolbarLayout = findViewById(R.id.test_toolbar);
+        soilImage = toolbarLayout.findViewById(R.id.soilImageButton);
+        soilImage.setVisibility(View.GONE);
 
         toolbarTitle = findViewById(R.id.toolbarTitle);
         toolbarTitle.setText("Standard Penetration Test");
@@ -119,7 +125,7 @@ public class sp_test_layout extends AppCompatActivity implements RowDataClickLis
             showValidationErrorToast("Error creating temporary image directory" + e);
         }
 
-        siteInfo = new SiteInformation(
+        siteInfo = new SiteInformation("",
                 toolbarTitle.getText().toString(),
                 "", "", "", "", "", "", "", teamMembers, "", "");
 
@@ -382,7 +388,7 @@ public class sp_test_layout extends AppCompatActivity implements RowDataClickLis
 
     private void saveDataToXml(String filename) {
         try {
-            siteInfo = new SiteInformation(
+            siteInfo = new SiteInformation("",
                     toolbarTitle.getText().toString(),
                     companyName.getText().toString(),
                     dateConductedEditText.getText().toString(),

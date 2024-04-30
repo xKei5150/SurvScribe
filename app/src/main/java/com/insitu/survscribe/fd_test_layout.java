@@ -5,15 +5,20 @@ import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.ParcelFileDescriptor;
+import android.provider.MediaStore;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
@@ -29,6 +34,7 @@ import com.itextpdf.text.Document;
 import com.itextpdf.text.DocumentException;
 import com.itextpdf.text.Element;
 import com.itextpdf.text.Font;
+import com.itextpdf.text.Image;
 import com.itextpdf.text.Paragraph;
 import com.itextpdf.text.Phrase;
 import com.itextpdf.text.Rectangle;
@@ -36,25 +42,31 @@ import com.itextpdf.text.pdf.PdfPCell;
 import com.itextpdf.text.pdf.PdfPTable;
 import com.itextpdf.text.pdf.PdfWriter;
 import com.itextpdf.text.pdf.draw.LineSeparator;
+import com.squareup.picasso.Picasso;
 import com.thoughtworks.xstream.XStream;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.UUID;
 
 public class fd_test_layout extends AppCompatActivity implements RowDataClickListener {
     private static final int CREATE_PDF_REQUEST_CODE = 2;
-
+    private ActivityResultLauncher<Intent> galleryLauncher;
+    private View soilImageView;
     private RecyclerView testDataTable;
     private static FD_Adapter adapter;
     List<FD_Data> FDDataList;
     private List<String> teamMembers;
+
     private EditText dateConductedEditText;
     private EditText timeEditText;
     private EditText companyName;
@@ -79,6 +91,16 @@ public class fd_test_layout extends AppCompatActivity implements RowDataClickLis
 
         ConstraintLayout siteInfoLayout = findViewById(R.id.soilTest_siteInfo);
 
+        galleryLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                result -> {
+                    if (result.getResultCode() == RESULT_OK && result.getData() != null) {
+                        Uri selectedImageUri = result.getData().getData();
+                        processSelectedImage(selectedImageUri);
+                        previewImage(soilImageView);
+                    }
+                });
+
         toolbarTitle = findViewById(R.id.toolbarTitle);
         toolbarTitle.setText("Field Density Test");
 
@@ -92,7 +114,7 @@ public class fd_test_layout extends AppCompatActivity implements RowDataClickLis
         location = siteInfoLayout.findViewById(R.id.locationInput);
         weather = siteInfoLayout.findViewById(R.id.weatherInput);
         materialClassification = siteInfoLayout.findViewById(R.id.materialClassificationInput);
-        siteInfo = new SiteInformation(
+        siteInfo = new SiteInformation("",
                 toolbarTitle.getText().toString(),
                 "", "", "", "", "", "", "", teamMembers, "", "");
 
@@ -162,6 +184,7 @@ public class fd_test_layout extends AppCompatActivity implements RowDataClickLis
     private void showAddDataDialog() {
         MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(this);
         View dialogView = getLayoutInflater().inflate(R.layout.form_fd_data_layout, null);
+        EditText timeOfSandPouringInput = dialogView.findViewById(R.id.timeOfSandPouringInput);
         EditText timeStartedInput = dialogView.findViewById(R.id.timeStartedInput);
         EditText timeFinishedInput = dialogView.findViewById(R.id.timeFinishedInput);
         EditText soilTypesInput = dialogView.findViewById(R.id.soilTypesInput);
@@ -170,13 +193,13 @@ public class fd_test_layout extends AppCompatActivity implements RowDataClickLis
         EditText finalMassInput = dialogView.findViewById(R.id.finalMassInput);
 
         // Input Validation
-
+        DateTimePicker dateTimePicker0 = new DateTimePicker(this, null, timeOfSandPouringInput);
         DateTimePicker dateTimePicker1 = new DateTimePicker(this, null, timeStartedInput);
         DateTimePicker dateTimePicker2 = new DateTimePicker(this, null, timeFinishedInput);
 
         builder.setView(dialogView)
                 .setPositiveButton("Save", (dialog, which) -> {
-
+                    String timeOfSandPouring = timeOfSandPouringInput.getText().toString();
                     String timeStarted = timeStartedInput.getText().toString();
                     String timeFinished = timeFinishedInput.getText().toString();
                     String soilTypes = soilTypesInput.getText().toString();
@@ -188,11 +211,11 @@ public class fd_test_layout extends AppCompatActivity implements RowDataClickLis
                         return;
                     }
                     Double massOfSandFillTheHole = Double.parseDouble(initialMass) - Double.parseDouble(finalMass);
-                    boolean dataAdded = updateNextBlankRow(timeStarted, timeFinished, soilTypes, massDrySoil, initialMass, finalMass);
+                    boolean dataAdded = updateNextBlankRow(timeOfSandPouring, timeStarted, timeFinished, soilTypes, massDrySoil, initialMass, finalMass);
 
                     if (!dataAdded) {
                         int newRowIndex = FDDataList.size();  // Get index of the newly added row
-                        FDDataList.add(new FD_Data(timeStarted, timeFinished, soilTypes, massDrySoil, initialMass, finalMass, String.valueOf(massOfSandFillTheHole)));
+                        FDDataList.add(new FD_Data(timeOfSandPouring, timeStarted, timeFinished, soilTypes, massDrySoil, initialMass, finalMass, String.valueOf(massOfSandFillTheHole)));
                         adapter.notifyItemInserted(newRowIndex);
                         dataChanged = true;
                     }
@@ -204,7 +227,8 @@ public class fd_test_layout extends AppCompatActivity implements RowDataClickLis
     }
 
 
-    private boolean updateNextBlankRow(String timeStarted,
+    private boolean updateNextBlankRow(String timeOfSandPouring,
+                                       String timeStarted,
                                        String timeFinished,
                                        String soilTypes,
                                        String massOfDrySoilFromHole,
@@ -214,12 +238,14 @@ public class fd_test_layout extends AppCompatActivity implements RowDataClickLis
         for (int i = 1; i < FDDataList.size(); i++) {
             FD_Data row = FDDataList.get(i);
             boolean checkEmpty = row.getMassOfDrySoilFromHole().isEmpty() &&
+                    row.getTimeOfSandPouring().isEmpty() &&
                     row.getSoilTypes().isEmpty() &&
                     row.getInitialMassOfSandAndJar().isEmpty() &&
                     row.getFinalMassOfSandAndJar().isEmpty() &&
                     row.getTimeStarted().isEmpty() &&
                     row.getTimeFinished().isEmpty();
             if (checkEmpty) {
+                row.setTimeOfSandPouring(timeOfSandPouring);
                 row.setTimeStarted(timeStarted);
                 row.setTimeFinished(timeFinished);
                 row.setSoilTypes(soilTypes);
@@ -243,10 +269,10 @@ public class fd_test_layout extends AppCompatActivity implements RowDataClickLis
         List<FD_Data> dataList = new ArrayList<>();
 
         // Add sample FD_Data items:
-        dataList.add(new FD_Data("\t\t\tTime Started", "\t\t\tTime Finished", "Soil Types/Soil Condition", "Mass of Dry Soil from Hole", "Initial Mass of Sand and Jar", "Final Mass of Sand and Jar", "Mass of Sand Fill the Hole"));
+        dataList.add(new FD_Data("Time of Sand Pouring","\t\t\tTime Started", "\t\t\tTime Finished", "Soil Types/Soil Condition", "Mass of Dry Soil from Hole", "Initial Mass of Sand and Jar", "Final Mass of Sand and Jar", "Mass of Sand Fill the Hole"));
         int numBlankRows = 4;
         for (int i = 0; i < numBlankRows; i++) {
-            dataList.add(new FD_Data("", "", "", "", "", "", ""));
+            dataList.add(new FD_Data("","", "", "", "", "", "", ""));
         }
         return dataList;
     }
@@ -331,8 +357,9 @@ public class fd_test_layout extends AppCompatActivity implements RowDataClickLis
     }
 
     private void updateUi(FDTest fdTest) {
-        SiteInformation siteInfo = fdTest.getSiteInfo();
+        siteInfo = fdTest.getSiteInfo();
         List<FD_Data> FDData = fdTest.getFdDataList();
+
 
         toolbarTitle.setText(siteInfo.getTestType());
         companyName.setText(siteInfo.getCompanyName());
@@ -399,6 +426,7 @@ public class fd_test_layout extends AppCompatActivity implements RowDataClickLis
         MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(this);
         View dialogView = getLayoutInflater().inflate(R.layout.form_fd_data_layout, null); // Reuse your FD data input layout
 
+        EditText timeOfSandPouringInput = dialogView.findViewById(R.id.timeOfSandPouringInput);
         EditText timeStartedInput = dialogView.findViewById(R.id.timeStartedInput);
         EditText timeFinishedInput = dialogView.findViewById(R.id.timeFinishedInput);
         EditText soilTypesInput = dialogView.findViewById(R.id.soilTypesInput);
@@ -407,6 +435,7 @@ public class fd_test_layout extends AppCompatActivity implements RowDataClickLis
         EditText finalMassInput = dialogView.findViewById(R.id.finalMassInput);
 
         // Pre-fill
+        timeOfSandPouringInput.setText(fdData.getTimeOfSandPouring());
         timeStartedInput.setText(fdData.getTimeStarted());
         timeFinishedInput.setText(fdData.getTimeFinished());
         soilTypesInput.setText(fdData.getSoilTypes());
@@ -414,11 +443,13 @@ public class fd_test_layout extends AppCompatActivity implements RowDataClickLis
         initialMassInput.setText(fdData.getInitialMassOfSandAndJar());
         finalMassInput.setText(fdData.getFinalMassOfSandAndJar());
 
+        DateTimePicker dateTimePicker0 = new DateTimePicker(this, null, timeOfSandPouringInput);
         DateTimePicker dateTimePicker1 = new DateTimePicker(this, null, timeStartedInput);
         DateTimePicker dateTimePicker2 = new DateTimePicker(this, null, timeFinishedInput);
 
         builder.setView(dialogView)
                 .setPositiveButton("Save", (dialog, which) -> {
+                    String timeOfSandPouring = timeOfSandPouringInput.getText().toString();
                     String timeStarted = timeStartedInput.getText().toString();
                     String timeFinished = timeFinishedInput.getText().toString();
                     String soilType = soilTypesInput.getText().toString();
@@ -426,7 +457,7 @@ public class fd_test_layout extends AppCompatActivity implements RowDataClickLis
                     String initialMass = initialMassInput.getText().toString();
                     String finalMass = finalMassInput.getText().toString();
                     dataChanged = true;
-                    adapter.updateRow(position, timeStarted, timeFinished, soilType, massDrySoil, initialMass, finalMass);
+                    adapter.updateRow(position, timeOfSandPouring, timeStarted, timeFinished, soilType, massDrySoil, initialMass, finalMass);
                     adapter.notifyItemChanged(position);
                 })
                 .setNegativeButton("Cancel", (dialog, which) -> dialog.dismiss())
@@ -472,6 +503,7 @@ public class fd_test_layout extends AppCompatActivity implements RowDataClickLis
     private void saveDataToXml(String filename) {
         try {
             siteInfo = new SiteInformation(
+                    siteInfo.getSoilImage(),
                     toolbarTitle.getText().toString(),
                     companyName.getText().toString(),
                     dateConductedEditText.getText().toString(),
@@ -542,6 +574,16 @@ public class fd_test_layout extends AppCompatActivity implements RowDataClickLis
             document.add(test);
             document.add(separator);
             document.add(createTestTable(this.FDDataList));
+            Paragraph pict = new Paragraph("Picture: ", boldFont);
+            pict.setSpacingAfter(12);
+
+            if (this.siteInfo.getSoilImage() != null) {
+                document.add(pict);
+                Image image = Image.getInstance(this.siteInfo.getSoilImage());
+                image.scaleToFit(300, 200);
+                image.setAlignment(Element.ALIGN_CENTER);
+                document.add(image);
+            }
 
             document.close();
             fileOutputStream.close();
@@ -570,7 +612,10 @@ public class fd_test_layout extends AppCompatActivity implements RowDataClickLis
             else
                 testCell.addCell(String.valueOf(i));
         }
-
+        for (int i = 0; i < fdDataList.size(); i++) {
+            FD_Data fdData = fdDataList.get(i);
+            testCell.addCell(fdData.getTimeOfSandPouring());
+        }
         for (int i = 0; i < fdDataList.size(); i++) {
             FD_Data fdData = fdDataList.get(i);
             testCell.addCell(fdData.getTimeStarted());
@@ -699,5 +744,85 @@ public class fd_test_layout extends AppCompatActivity implements RowDataClickLis
                 .setNegativeButton("Cancel", (dialog, which) -> dialog.dismiss())
                 .show();
     }
+
+    public void onSoilImagePressed(View view){
+        showSoilImage();
+    }
+
+    private void showSoilImage() {
+        // Inflate the dialog layout
+        soilImageView = LayoutInflater.from(this).inflate(R.layout.form_soil_image, null);
+        ImageView imageView = soilImageView.findViewById(R.id.imagePreview);
+        Button selectImageButton = soilImageView.findViewById(R.id.selectImageButton);
+
+        previewImage(soilImageView);
+        selectImageButton.setOnClickListener(v -> {
+            Intent galleryIntent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+            galleryLauncher.launch(galleryIntent);
+
+        });
+
+        AlertDialog dialog = new MaterialAlertDialogBuilder(this)
+                .setView(soilImageView)
+                .setTitle("Select Soil Image")
+                .create();
+        dialog.show();
+    }
+
+    private void processSelectedImage(Uri selectedImageUri) {
+        try {
+            File tempImageFile = File.createTempFile("temp_image_", null, getCacheDir());
+            String tempImagePath = tempImageFile.getAbsolutePath();
+
+            // Copy and get the internal storage path
+            String internalImagePath = copyTempImageToInternalStorage(selectedImageUri, tempImagePath);
+
+            siteInfo.setSoilImage(internalImagePath); // Use internal path
+            previewImage(soilImageView);
+            dataChanged = true;
+        } catch (IOException e) {
+            showValidationErrorToast("Error copying or uploading image: " + e);
+        }
+    }
+
+    private String copyTempImageToInternalStorage(Uri imageUri, String tempImagePath) throws IOException {
+        // 1. Get access to internal storage
+        File directory = getFilesDir();
+        // 2. Generate a unique filename
+        String fileName = UUID.randomUUID().toString() + ".jpg"; // Adjust extension as needed
+        File file = new File(directory, fileName);
+
+        // 3. Copy the image from Uri to internal storage (Corrected)
+        InputStream inputStream = getContentResolver().openInputStream(imageUri);
+        OutputStream outputStream = new FileOutputStream(file);
+        byte[] buffer = new byte[1024];
+        int length;
+        while ((length = inputStream.read(buffer)) > 0) {
+            outputStream.write(buffer, 0, length);
+        }
+        inputStream.close();
+        outputStream.close();
+
+        // 4. Delete the temporary file (Check result)
+        boolean deleted = new File(tempImagePath).delete();
+        if (!deleted) {
+            Log.w("ImageHandling", "Failed to delete temp file: " + tempImagePath);
+        }
+
+        // 5. Return the internal storage path
+        return file.getAbsolutePath();
+    }
+
+    private void previewImage(View soilImageView) {
+        ImageView imageView = soilImageView.findViewById(R.id.imagePreview);
+            Picasso.get()
+                    .load(new File(siteInfo.getSoilImage()))
+                    .placeholder(R.drawable.file_not_found)
+                    .into(imageView);
+    }
+
+
+
+
 
 }

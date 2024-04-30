@@ -77,10 +77,10 @@ public class FD_Adapter extends RecyclerView.Adapter<FD_Adapter.MyHorizontalView
         this.changeListener = listener;
     }
 
-    public void updateRow(int position, String timeStarted, String timeFinished, String soilTypes,
+    public void updateRow(int position, String timeOfSandPouring, String timeStarted, String timeFinished, String soilTypes,
                           String massOfDrySoil, String initialMass, String finalMass) {
         FD_Data fdDataToUpdate = dataList.get(position);
-
+        fdDataToUpdate.setTimeOfSandPouring(timeOfSandPouring);
         fdDataToUpdate.setTimeStarted(timeStarted);
         fdDataToUpdate.setTimeFinished(timeFinished);
         fdDataToUpdate.setSoilTypes(soilTypes);
@@ -115,7 +115,6 @@ public class FD_Adapter extends RecyclerView.Adapter<FD_Adapter.MyHorizontalView
         FD_Data dataItem = dataList.get(position);
 
         if(position > 0) {
-            holder.timeOfSandPouringTextView.setText("");
             holder.remarksTextView.setText("");
             holder.subHeaderTextView.setText(String.valueOf(position));
         }
@@ -125,6 +124,7 @@ public class FD_Adapter extends RecyclerView.Adapter<FD_Adapter.MyHorizontalView
             holder.remarksTextView.setText(dataItem.getRemarks());
         else
             holder.remarksTextView.setVisibility(View.GONE);
+        holder.timeOfSandPouringTextView.setText(dataItem.getTimeOfSandPouring());
         holder.timeStartedTextView.setText(dataItem.getTimeStarted());
         holder.timeFinishedTextView.setText(dataItem.getTimeFinished());
         holder.soilTypesTextView.setText(dataItem.getSoilTypes());
